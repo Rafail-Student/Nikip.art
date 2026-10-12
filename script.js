@@ -1,0 +1,509 @@
+/* ==========================================================================
+   NIKIP.ART — Vanilla JS, no dependencies.
+   Everything here is progressive enhancement: if this file fails to load, all
+   three pages still render, navigate and submit correctly.
+   --------------------------------------------------------------------------
+   01. Hero video
+   02. Header shadow on scroll
+   03. Mobile navigation
+   04. Lightbox
+   05. Commission form
+   06. Footer year
+   07. Button paint splat
+   ========================================================================== */
+
+(function () {
+  "use strict";
+
+  var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Interface text in both languages. The page's <html lang> picks the set;
+     anything missing falls back to English. */
+  var LANG = (document.documentElement.lang || "en").slice(0, 2).toLowerCase();
+  var STRINGS = {
+    en: {
+      menuOpen:   "Open menu",
+      menuClose:  "Close menu",
+      painting:   "Painting",
+      required:   "This one's needed.",
+      badEmail:   "That address doesn't look complete.",
+      tooShort:   "A little more detail would help — 20 characters or so.",
+      checkFields:"Have a look at the highlighted fields.",
+      setup:      "Setup needed: replace YOUR_FORM_ID in contact.html with your Formspree form id.",
+      sending:    "Sending…",
+      sent:       "Got it — I'll write back by email soon.",
+      failed:     "That didn't go through. Please try again.",
+      offline:    "No connection — check your network and try again.",
+      send:       "Send it",
+      zoomIn:     "Zoom in",
+      zoomOut:    "Zoom out"
+    },
+    el: {
+      menuOpen:   "Άνοιγμα μενού",
+      menuClose:  "Κλείσιμο μενού",
+      painting:   "Πίνακας",
+      required:   "Αυτό το πεδίο χρειάζεται.",
+      badEmail:   "Η διεύθυνση δεν φαίνεται ολοκληρωμένη.",
+      tooShort:   "Λίγες λεπτομέρειες ακόμα θα βοηθούσαν — γύρω στους 20 χαρακτήρες.",
+      checkFields:"Ρίξε μια ματιά στα πεδία που επισημαίνονται.",
+      setup:      "Χρειάζεται ρύθμιση: αντικατέστησε το YOUR_FORM_ID στο el/contact.html με το Formspree form id σου.",
+      sending:    "Αποστολή…",
+      sent:       "Το έλαβα — θα σου απαντήσω σύντομα με email.",
+      failed:     "Δεν στάλθηκε. Δοκίμασε ξανά.",
+      offline:    "Δεν υπάρχει σύνδεση — έλεγξε το δίκτυο και δοκίμασε ξανά.",
+      send:       "Στείλ’ το",
+      zoomIn:     "Μεγέθυνση",
+      zoomOut:    "Σμίκρυνση"
+    }
+  };
+  function t(key) { return (STRINGS[LANG] || STRINGS.en)[key] || STRINGS.en[key]; }
+
+  function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+  function $$(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+
+
+  /* ======================================================================
+     01. HERO VIDEO
+     The clip is large, so it is only attached when it is actually worth it:
+     a reasonably wide screen, no Save-Data header, and motion not suppressed.
+     Everywhere else the poster image is the hero, which costs ~60 KB.
+     ====================================================================== */
+  (function initHeroVideo() {
+    var video = $("#heroVideo");
+    if (!video) return;
+
+    var conn = navigator.connection || {};
+    var saveData = conn.saveData === true;
+    var slow = /(^|-)2g$/.test(conn.effectiveType || "");
+
+    if (window.innerWidth < 700 || saveData || slow || prefersReducedMotion) return;
+
+    var src = video.getAttribute("data-src");
+    if (!src) return;
+
+    video.setAttribute("src", src);
+    video.load();
+    // Autoplay can still be refused; the poster simply stays put if so.
+    var attempt = video.play();
+    if (attempt && typeof attempt.catch === "function") { attempt.catch(function () {}); }
+  })();
+
+
+  /* ======================================================================
+     02. HEADER SHADOW ON SCROLL
+     ====================================================================== */
+  (function initHeader() {
+    var header = $("#siteHeader");
+    if (!header) return;
+
+    var ticking = false;
+    function update() {
+      header.classList.toggle("is-scrolled", window.scrollY > 8);
+      ticking = false;
+    }
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }, { passive: true });
+    update();
+  })();
+
+
+  /* ======================================================================
+     03. MOBILE NAVIGATION
+     ====================================================================== */
+  (function initNav() {
+    var toggle = $("#navToggle");
+    var nav = $("#primaryNav");
+    if (!toggle || !nav) return;
+
+    function setOpen(open) {
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? t("menuClose") : t("menuOpen"));
+      nav.classList.toggle("is-open", open);
+      document.body.classList.toggle("is-locked", open);
+    }
+
+    toggle.addEventListener("click", function () {
+      setOpen(toggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    $$("a", nav).forEach(function (link) {
+      link.addEventListener("click", function () { setOpen(false); });
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth >= 900) setOpen(false);
+    });
+  })();
+
+
+  /* ======================================================================
+     04. LIGHTBOX
+     Each piece is a real link to its image, so without JS clicking one still
+     opens the painting. Here we present it in place instead.
+     ====================================================================== */
+  (function initLightbox() {
+    var box = $("#lightbox");
+    var grid = $("#galleryGrid");
+    if (!box || !grid) return;
+
+    var pieces = $$(".piece", grid);
+    if (!pieces.length) return;
+
+    var imgEl    = $("#lightboxImg");
+    var stage    = $("#lightboxStage");
+    var titleEl  = $("#lightboxTitle");
+    var mediumEl = $("#lightboxMedium");
+    var closeBtn = $("#lightboxClose");
+    var zoomBtn  = $("#lightboxZoom");
+    var prevBtn  = $("#lightboxPrev");
+    var nextBtn  = $("#lightboxNext");
+
+    var current = 0;
+    var lastFocused = null;
+
+    /* ---------- Zoom & pan ----------
+       Tap/click toggles a 2.5x zoom at that spot; drag pans; the wheel and a
+       two-finger pinch zoom smoothly between 1x and 4x. The stage clips the
+       image, so a zoomed painting never spills over the controls. */
+    var MIN = 1, MAX = 4, TAP_ZOOM = 2.5;
+    var scale = 1, tx = 0, ty = 0;
+    var pointers = {};
+    var drag = null;          // { x, y, tx, ty, moved }
+    var pinch = null;         // { dist, scale, cx, cy }
+
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    function apply(animate) {
+      var w = imgEl.offsetWidth, h = imgEl.offsetHeight;
+      var maxX = (scale - 1) * w / 2, maxY = (scale - 1) * h / 2;
+      tx = clamp(tx, -maxX, maxX);
+      ty = clamp(ty, -maxY, maxY);
+      imgEl.style.transition = animate ? "" : "none";
+      imgEl.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + scale + ")";
+      var zoomed = scale > 1.01;
+      stage.classList.toggle("is-zoomed", zoomed);
+      if (zoomBtn) {
+        zoomBtn.setAttribute("aria-pressed", String(zoomed));
+        zoomBtn.setAttribute("aria-label", zoomed ? t("zoomOut") : t("zoomIn"));
+      }
+    }
+
+    // Zoom to `next`, keeping the point (px, py), measured from the stage
+    // centre, fixed under the pointer.
+    function zoomTo(next, px, py, animate) {
+      next = clamp(next, MIN, MAX);
+      var k = next / scale;
+      tx = px - (px - tx) * k;
+      ty = py - (py - ty) * k;
+      scale = next;
+      if (scale <= 1.01) { scale = 1; tx = 0; ty = 0; }
+      apply(animate);
+    }
+
+    function fromCentre(clientX, clientY) {
+      var r = stage.getBoundingClientRect();
+      return { x: clientX - (r.left + r.width / 2), y: clientY - (r.top + r.height / 2) };
+    }
+
+    function resetZoom() {
+      scale = 1; tx = 0; ty = 0;
+      pointers = {}; drag = null; pinch = null;
+      apply(false);
+    }
+
+    function toggleZoom(clientX, clientY) {
+      if (scale > 1.01) { zoomTo(1, 0, 0, true); return; }
+      var p = clientX == null ? { x: 0, y: 0 } : fromCentre(clientX, clientY);
+      zoomTo(TAP_ZOOM, p.x, p.y, true);
+    }
+
+    stage.addEventListener("pointerdown", function (e) {
+      if (e.button > 0) return;
+      stage.setPointerCapture(e.pointerId);
+      pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+      var ids = Object.keys(pointers);
+      if (ids.length === 2) {
+        var a = pointers[ids[0]], b = pointers[ids[1]];
+        var c = fromCentre((a.x + b.x) / 2, (a.y + b.y) / 2);
+        pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale: scale, cx: c.x, cy: c.y };
+        drag = null;
+      } else {
+        drag = { x: e.clientX, y: e.clientY, tx: tx, ty: ty, moved: false };
+      }
+    });
+
+    stage.addEventListener("pointermove", function (e) {
+      if (!pointers[e.pointerId]) return;
+      pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+      var ids = Object.keys(pointers);
+
+      if (pinch && ids.length === 2) {
+        var a = pointers[ids[0]], b = pointers[ids[1]];
+        zoomTo(pinch.scale * Math.hypot(a.x - b.x, a.y - b.y) / pinch.dist, pinch.cx, pinch.cy, false);
+        return;
+      }
+      if (!drag) return;
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+      if (drag.moved && scale > 1) {
+        stage.classList.add("is-dragging");
+        tx = drag.tx + dx;
+        ty = drag.ty + dy;
+        apply(false);
+      }
+    });
+
+    function endPointer(e) {
+      if (!pointers[e.pointerId]) return;
+      delete pointers[e.pointerId];
+      stage.classList.remove("is-dragging");
+      if (pinch) {
+        if (Object.keys(pointers).length < 2) pinch = null;
+        drag = null;        // a finger lifting after a pinch is not a tap
+        return;
+      }
+      if (drag && !drag.moved && e.type === "pointerup") toggleZoom(e.clientX, e.clientY);
+      drag = null;
+    }
+    stage.addEventListener("pointerup", endPointer);
+    stage.addEventListener("pointercancel", endPointer);
+
+    stage.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      var p = fromCentre(e.clientX, e.clientY);
+      zoomTo(scale * Math.exp(-e.deltaY * 0.0025), p.x, p.y, false);
+    }, { passive: false });
+
+    if (zoomBtn) zoomBtn.addEventListener("click", function () { toggleZoom(); });
+    window.addEventListener("resize", function () { if (!box.hidden) apply(false); });
+
+    function render(i) {
+      var piece = pieces[i];
+      if (!piece) return;
+      current = i;
+
+      var img = $("img", piece);
+      resetZoom();
+      imgEl.src = piece.getAttribute("href");
+      imgEl.alt = img ? img.alt : (piece.dataset.title || t("painting"));
+      titleEl.textContent = piece.dataset.title || "";
+      mediumEl.textContent = piece.dataset.medium || "";
+    }
+
+    function open(i) {
+      lastFocused = document.activeElement;
+      box.hidden = false;
+      document.body.classList.add("is-locked");
+      render(i);
+      window.requestAnimationFrame(function () { box.classList.add("is-open"); });
+      closeBtn.focus();
+    }
+
+    function close() {
+      box.classList.remove("is-open");
+      document.body.classList.remove("is-locked");
+      window.setTimeout(function () {
+        box.hidden = true;
+        imgEl.src = "";
+        resetZoom();
+      }, prefersReducedMotion ? 0 : 350);
+      if (lastFocused) lastFocused.focus();
+    }
+
+    function step(delta) {
+      render((current + delta + pieces.length) % pieces.length);
+    }
+
+    grid.addEventListener("click", function (e) {
+      var piece = e.target.closest(".piece");
+      if (!piece) return;
+      var i = pieces.indexOf(piece);
+      if (i === -1) return;
+      e.preventDefault();
+      open(i);
+    });
+
+    closeBtn.addEventListener("click", close);
+    prevBtn.addEventListener("click", function () { step(-1); });
+    nextBtn.addEventListener("click", function () { step(1); });
+
+    box.addEventListener("click", function (e) {
+      if (e.target === box) close();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (box.hidden) return;
+
+      if (e.key === "Escape") { if (scale > 1) zoomTo(1, 0, 0, true); else close(); }
+      else if (e.key === "ArrowLeft") { step(-1); }
+      else if (e.key === "ArrowRight") { step(1); }
+      else if (e.key === "+" || e.key === "=") { zoomTo(scale * 1.5, 0, 0, true); }
+      else if (e.key === "-") { zoomTo(scale / 1.5, 0, 0, true); }
+      else if (e.key === "0") { zoomTo(1, 0, 0, true); }
+      else if (e.key === "Tab") {
+        // Keep focus inside the dialog
+        var focusable = [closeBtn, zoomBtn, prevBtn, nextBtn].filter(Boolean);
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+  })();
+
+
+  /* ======================================================================
+     05. COMMISSION FORM
+     ====================================================================== */
+  (function initForm() {
+    var form = $("#commissionForm");
+    if (!form) return;
+
+    var status = $("#formStatus");
+    var submitBtn = $("#formSubmit");
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function setError(field, message) {
+      var slot = $('[data-error-for="' + field.id + '"]', form);
+      if (slot) slot.textContent = message || "";
+      field.classList.toggle("is-invalid", Boolean(message));
+      field.setAttribute("aria-invalid", message ? "true" : "false");
+    }
+
+    function validate(field) {
+      var value = field.value.trim();
+
+      if (!value) {
+        setError(field, t("required"));
+        return false;
+      }
+      if (field.type === "email" && !EMAIL_RE.test(value)) {
+        setError(field, t("badEmail"));
+        return false;
+      }
+      if (field.id === "message" && value.length < 20) {
+        setError(field, t("tooShort"));
+        return false;
+      }
+      setError(field, "");
+      return true;
+    }
+
+    var fields = $$("input[required], textarea[required]", form);
+
+    fields.forEach(function (field) {
+      field.addEventListener("blur", function () { validate(field); });
+      field.addEventListener("input", function () {
+        if (field.classList.contains("is-invalid")) validate(field);
+      });
+    });
+
+    function setStatus(message, kind) {
+      status.textContent = message;
+      status.className = "form__status" + (kind ? " is-" + kind : "");
+    }
+
+    form.addEventListener("submit", function (e) {
+      var firstBad = null;
+      fields.forEach(function (field) {
+        if (!validate(field) && !firstBad) firstBad = field;
+      });
+
+      if (firstBad) {
+        e.preventDefault();
+        setStatus(t("checkFields"), "error");
+        firstBad.focus();
+        return;
+      }
+
+      var action = form.getAttribute("action") || "";
+
+      // Fail loudly rather than posting nowhere
+      if (action.indexOf("YOUR_FORM_ID") !== -1) {
+        e.preventDefault();
+        setStatus(t("setup"), "error");
+        return;
+      }
+
+      // Without fetch, let the browser post normally
+      if (!window.fetch) return;
+
+      e.preventDefault();
+      submitBtn.classList.add("is-busy");
+      $(".btn__label", submitBtn).textContent = t("sending");
+      setStatus(t("sending"), "");
+
+      fetch(action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" }
+      })
+        .then(function (res) {
+          if (res.ok) {
+            form.reset();
+            fields.forEach(function (f) { setError(f, ""); });
+            setStatus(t("sent"), "success");
+          } else {
+            return res.json().then(function (data) {
+              var msg = (data && data.errors)
+                ? data.errors.map(function (er) { return er.message; }).join(", ")
+                : t("failed");
+              setStatus(msg, "error");
+            });
+          }
+        })
+        .catch(function () {
+          setStatus(t("offline"), "error");
+        })
+        .then(function () {
+          submitBtn.classList.remove("is-busy");
+          $(".btn__label", submitBtn).textContent = t("send");
+        });
+    });
+  })();
+
+
+  /* ======================================================================
+     06. FOOTER YEAR
+     ====================================================================== */
+  (function initYear() {
+    var el = $("#year");
+    if (el) el.textContent = new Date().getFullYear();
+  })();
+
+
+  /* ======================================================================
+     07. BUTTON PAINT SPLAT
+     Places the press splat (.btn::after) under the pointer. Delegated, so it
+     also covers buttons Elementor renders later with the .btn class.
+     ====================================================================== */
+  (function initButtonSplat() {
+    if (prefersReducedMotion) return;
+
+    document.addEventListener("pointerdown", function (e) {
+      var btn = e.target.closest && e.target.closest(".btn");
+      if (!btn) return;
+      var r = btn.getBoundingClientRect();
+      btn.style.setProperty("--x", (e.clientX - r.left) + "px");
+      btn.style.setProperty("--y", (e.clientY - r.top) + "px");
+      btn.classList.remove("is-splat");
+      void btn.offsetWidth;            // restart the animation on rapid presses
+      btn.classList.add("is-splat");
+    });
+
+    document.addEventListener("animationend", function (e) {
+      if (e.animationName === "btn-splat") e.target.classList.remove("is-splat");
+    });
+  })();
+
+})();
