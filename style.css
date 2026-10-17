@@ -32,7 +32,7 @@
   --violet:       #7C3AED;   /* intense purple — the accent */
   --violet-ink:   #4C1D95;   /* deep purple, used where black would go */
   --text:         #4A3E63;   /* body copy, purple-grey */
-  --text-soft:    #7C6F97;   /* secondary copy */
+  --text-soft:    #6F6389;   /* secondary copy */
 
   /* Type */
   --display: "Fraunces", Georgia, "Times New Roman", serif;
@@ -692,6 +692,7 @@ h1, h2, h3, .display {
   display: block;
   max-width: 100%;
   max-height: 74vh;
+  max-height: 74dvh;   /* ignores mobile browser toolbars where supported */
   width: auto;
   transform-origin: 50% 50%;
   transition: transform 0.4s var(--ease);
@@ -703,7 +704,6 @@ h1, h2, h3, .display {
   margin-top: 0.35rem;
   color: var(--lilac);
   font-size: 0.8rem;
-  opacity: 0.8;
 }
 .lightbox__caption { text-align: center; color: var(--paper); }
 .lightbox__title {
@@ -746,7 +746,9 @@ h1, h2, h3, .display {
 .lightbox__nav--prev { left: clamp(0.5rem, 2vw, 2rem); }
 .lightbox__nav--next { right: clamp(0.5rem, 2vw, 2rem); }
 
-body.is-locked { overflow: hidden; }
+/* Locked on <html>, not <body>: overflow:hidden on body would make it a
+   scroll container and unstick the sticky header. */
+html.is-locked { overflow: hidden; }
 
 
 /* ==========================================================================
@@ -817,7 +819,7 @@ body.is-locked { overflow: hidden; }
   color: var(--text);
   transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
 }
-.form__input::placeholder { color: var(--text-soft); opacity: 0.8; }
+.form__input::placeholder { color: var(--text-soft); opacity: 1; }
 .form__input:focus {
   outline: none;
   background: var(--paper);
@@ -828,6 +830,7 @@ body.is-locked { overflow: hidden; }
 
 .form__hint { font-size: var(--fs-small); color: var(--text-soft); margin-top: 0.35rem; }
 .form__error { font-size: var(--fs-small); color: #C2410C; margin-top: 0.35rem; font-weight: 600; }
+.form__error:empty { display: none; }
 
 /* Off-screen honeypot for bots */
 .form__gotcha { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
@@ -920,8 +923,10 @@ body.is-locked { overflow: hidden; }
   .invite__inner { grid-template-columns: 1.1fr auto; gap: 3rem; }
 }
 
-/* ---------- Mobile navigation ---------- */
-@media (max-width: 899px) {
+/* ---------- Mobile navigation ----------
+   1024px, not 900: below that the full row (and the longer Greek labels)
+   no longer fits. Keep in sync with the resize check in script.js. */
+@media (max-width: 1023px) {
   .nav-toggle { display: flex; }
 
   .nav {
@@ -960,7 +965,15 @@ body.is-locked { overflow: hidden; }
   .hero__actions { flex-direction: column; align-items: stretch; }
   .hero__actions .btn { width: 100%; }
   .site-footer__top { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
-  .lightbox__nav { width: 42px; height: 42px; margin-top: -21px; }
+  /* Keep the controls off the painting: close/zoom above it, arrows below */
+  .lightbox { padding: 4.5rem 1rem 5rem; }
+  .lightbox__img { max-height: calc(100vh - 17rem); max-height: calc(100dvh - 17rem); }
+  .lightbox__nav { width: 42px; height: 42px; top: auto; bottom: 1rem; margin-top: 0; }
+}
+
+/* Very narrow phones: the wordmark gives way so the menu button fits */
+@media (max-width: 380px) {
+  .site-header__start .brand__text { display: none; }
 }
 
 

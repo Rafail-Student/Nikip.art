@@ -122,11 +122,17 @@
       toggle.setAttribute("aria-expanded", String(open));
       toggle.setAttribute("aria-label", open ? t("menuClose") : t("menuOpen"));
       nav.classList.toggle("is-open", open);
-      document.body.classList.toggle("is-locked", open);
+      document.documentElement.classList.toggle("is-locked", open);
+      if (open) {
+        var first = $("a", nav);
+        if (first) first.focus();
+      }
     }
 
+    function isOpen() { return toggle.getAttribute("aria-expanded") === "true"; }
+
     toggle.addEventListener("click", function () {
-      setOpen(toggle.getAttribute("aria-expanded") !== "true");
+      setOpen(!isOpen());
     });
 
     $$("a", nav).forEach(function (link) {
@@ -134,14 +140,24 @@
     });
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      if (!isOpen()) return;
+      if (e.key === "Escape") {
         setOpen(false);
         toggle.focus();
+      } else if (e.key === "Tab") {
+        // Keep focus inside the open menu (the toggle plus its links)
+        var focusable = [toggle].concat($$("a", nav));
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        var inside = focusable.indexOf(document.activeElement) !== -1;
+        if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
       }
     });
 
+    // Must match the mobile-nav breakpoint in style.css
     window.addEventListener("resize", function () {
-      if (window.innerWidth >= 900) setOpen(false);
+      if (window.innerWidth >= 1024 && isOpen()) setOpen(false);
     });
   })();
 
@@ -169,7 +185,7 @@
     var nextBtn  = $("#lightboxNext");
 
     var current = 0;
-    var lastFocused = null;
+    var closeTimer = null;
 
     /* ---------- Zoom & pan ----------
        Tap/click toggles a 2.5x zoom at that spot; drag pans; the wheel and a
@@ -285,7 +301,12 @@
     }, { passive: false });
 
     if (zoomBtn) zoomBtn.addEventListener("click", function () { toggleZoom(); });
-    window.addEventListener("resize", function () { if (!box.hidden) apply(false); });
+    var resizeQueued = false;
+    window.addEventListener("resize", function () {
+      if (box.hidden || resizeQueued) return;
+      resizeQueued = true;
+      window.requestAnimationFrame(function () { resizeQueued = false; apply(false); });
+    });
 
     function render(i) {
       var piece = pieces[i];
@@ -300,24 +321,29 @@
       mediumEl.textContent = piece.dataset.medium || "";
     }
 
+    function isOpen() { return box.classList.contains("is-open"); }
+
     function open(i) {
-      lastFocused = document.activeElement;
+      // A close that is still fading out must not hide the box we reopen
+      window.clearTimeout(closeTimer);
       box.hidden = false;
-      document.body.classList.add("is-locked");
+      document.documentElement.classList.add("is-locked");
       render(i);
       window.requestAnimationFrame(function () { box.classList.add("is-open"); });
       closeBtn.focus();
     }
 
     function close() {
+      if (!isOpen()) return;
       box.classList.remove("is-open");
-      document.body.classList.remove("is-locked");
-      window.setTimeout(function () {
+      document.documentElement.classList.remove("is-locked");
+      closeTimer = window.setTimeout(function () {
         box.hidden = true;
         imgEl.src = "";
         resetZoom();
       }, prefersReducedMotion ? 0 : 350);
-      if (lastFocused) lastFocused.focus();
+      // Back to the painting being viewed, not the one first opened
+      pieces[current].focus();
     }
 
     function step(delta) {
@@ -327,6 +353,8 @@
     grid.addEventListener("click", function (e) {
       var piece = e.target.closest(".piece");
       if (!piece) return;
+      // Let Ctrl/Cmd/Shift-click open the image in a new tab or window
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
       var i = pieces.indexOf(piece);
       if (i === -1) return;
       e.preventDefault();
@@ -342,7 +370,7 @@
     });
 
     document.addEventListener("keydown", function (e) {
-      if (box.hidden) return;
+      if (!isOpen()) return;
 
       if (e.key === "Escape") { if (scale > 1) zoomTo(1, 0, 0, true); else close(); }
       else if (e.key === "ArrowLeft") { step(-1); }
@@ -355,8 +383,9 @@
         var focusable = [closeBtn, zoomBtn, prevBtn, nextBtn].filter(Boolean);
         var first = focusable[0];
         var last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        var inside = focusable.indexOf(document.activeElement) !== -1;
+        if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
       }
     });
   })();
@@ -413,7 +442,12 @@
       status.className = "form__status" + (kind ? " is-" + kind : "");
     }
 
+    var sending = false;
+
     form.addEventListener("submit", function (e) {
+      // Enter in a field can resubmit while a request is already out
+      if (sending) { e.preventDefault(); return; }
+
       var firstBad = null;
       fields.forEach(function (field) {
         if (!validate(field) && !firstBad) firstBad = field;
@@ -439,6 +473,8 @@
       if (!window.fetch) return;
 
       e.preventDefault();
+      sending = true;
+      submitBtn.disabled = true;
       submitBtn.classList.add("is-busy");
       $(".btn__label", submitBtn).textContent = t("sending");
       setStatus(t("sending"), "");
@@ -454,11 +490,12 @@
             fields.forEach(function (f) { setError(f, ""); });
             setStatus(t("sent"), "success");
           } else {
-            return res.json().then(function (data) {
+            // The error body is not always JSON (e.g. a proxy's HTML page)
+            return res.json().catch(function () { return null; }).then(function (data) {
               var msg = (data && data.errors)
-                ? data.errors.map(function (er) { return er.message; }).join(", ")
-                : t("failed");
-              setStatus(msg, "error");
+                ? data.errors.map(function (er) { return er.message; }).filter(Boolean).join(", ")
+                : "";
+              setStatus(msg || t("failed"), "error");
             });
           }
         })
@@ -466,6 +503,8 @@
           setStatus(t("offline"), "error");
         })
         .then(function () {
+          sending = false;
+          submitBtn.disabled = false;
           submitBtn.classList.remove("is-busy");
           $(".btn__label", submitBtn).textContent = t("send");
         });
