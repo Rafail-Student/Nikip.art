@@ -184,7 +184,18 @@ h1, h2, h3, .display {
 }
 
 .prose > * + * { margin-top: 1.1rem; }
+.prose > h2 + p { margin-top: 0.6rem; }
+.prose > * + h2 { margin-top: 2.25rem; }
 .prose p { max-width: 62ch; }
+.prose a,
+.form__hint a {
+  color: var(--violet-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--lilac-deep);
+  text-underline-offset: 3px;
+}
+.prose a:hover,
+.form__hint a:hover { text-decoration-color: currentColor; }
 
 .note { font-size: var(--fs-small); color: var(--text-soft); }
 
