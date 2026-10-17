@@ -64,9 +64,8 @@
 
   /* ======================================================================
      01. HERO VIDEO
-     The clip is large, so it is only attached when it is actually worth it:
-     a reasonably wide screen, no Save-Data header, and motion not suppressed.
-     Everywhere else the poster image is the hero, which costs ~60 KB.
+     Phones get a lighter 540p encode (data-src-mobile). With Save-Data, a
+     2G connection or reduced motion, the poster image (~60 KB) stays put.
      ====================================================================== */
   (function initHeroVideo() {
     var video = $("#heroVideo");
@@ -76,9 +75,10 @@
     var saveData = conn.saveData === true;
     var slow = /(^|-)2g$/.test(conn.effectiveType || "");
 
-    if (window.innerWidth < 700 || saveData || slow || prefersReducedMotion) return;
+    if (saveData || slow || prefersReducedMotion) return;
 
-    var src = video.getAttribute("data-src");
+    var small = window.innerWidth < 700 && video.getAttribute("data-src-mobile");
+    var src = small || video.getAttribute("data-src");
     if (!src) return;
 
     video.setAttribute("src", src);
