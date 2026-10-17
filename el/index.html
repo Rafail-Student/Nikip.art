@@ -16,7 +16,9 @@
   <link rel="alternate" hreflang="en" href="../index.html" />
   <link rel="alternate" hreflang="el" href="index.html" />
 
-  <link rel="icon" href="../assets/Logos/LogoNikipArt_Remove.png" type="image/png" />
+  <link rel="icon" href="../assets/Logos/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="../assets/Logos/favicon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="../assets/Logos/apple-touch-icon.png" />
 
   <!-- Fraunces and Nunito have no Greek letters, so fonts.css also includes
        Literata (headings) and Manrope (text); style.css switches to them via
@@ -114,6 +116,16 @@
                    data-src="../assets/PaintVideos/1000024808.mp4"
                    data-src-mobile="../assets/PaintVideos/hero-mobile.mp4"
                    aria-hidden="true" tabindex="-1"></video>
+            <!-- Shown by script.js once the video actually plays -->
+            <button class="hero__pause" id="heroPause" type="button" aria-label="Παύση βίντεο" hidden>
+              <svg class="hero__pause-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="6.5" y="5" width="3.5" height="14" rx="1.2" fill="currentColor"/>
+                <rect x="14" y="5" width="3.5" height="14" rx="1.2" fill="currentColor"/>
+              </svg>
+              <svg class="hero__play-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/>
+              </svg>
+            </button>
           </div>
           <p class="hero__caption">Γαλάζιες Σπηλιές, Παξοί — ακουαρέλα, στο σημείο όπου ζωγραφίστηκε</p>
         </div>
@@ -167,7 +179,7 @@
       <div class="container">
         <div class="gallery__intro">
           <h2 class="h-section">Μερικοί από αυτούς</h2>
-          <p>Στη γκαλερί υπάρχουν εννέα πίνακες. Εδώ είναι τρεις για αρχή.</p>
+          <p>Τρεις για αρχή. Οι υπόλοιποι είναι στη γκαλερί.</p>
         </div>
 
         <div class="gallery__grid gallery__grid--trio">

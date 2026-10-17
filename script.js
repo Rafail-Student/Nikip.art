@@ -36,7 +36,9 @@
       offline:    "No connection — check your network and try again.",
       send:       "Send it",
       zoomIn:     "Zoom in",
-      zoomOut:    "Zoom out"
+      zoomOut:    "Zoom out",
+      pause:      "Pause video",
+      play:       "Play video"
     },
     el: {
       menuOpen:   "Άνοιγμα μενού",
@@ -53,7 +55,9 @@
       offline:    "Δεν υπάρχει σύνδεση — έλεγξε το δίκτυο και δοκίμασε ξανά.",
       send:       "Στείλ’ το",
       zoomIn:     "Μεγέθυνση",
-      zoomOut:    "Σμίκρυνση"
+      zoomOut:    "Σμίκρυνση",
+      pause:      "Παύση βίντεο",
+      play:       "Αναπαραγωγή βίντεο"
     }
   };
   function t(key) { return (STRINGS[LANG] || STRINGS.en)[key] || STRINGS.en[key]; }
@@ -83,9 +87,34 @@
 
     video.setAttribute("src", src);
     video.load();
-    // Autoplay can still be refused; the poster simply stays put if so.
-    var attempt = video.play();
-    if (attempt && typeof attempt.catch === "function") { attempt.catch(function () {}); }
+
+    function play() {
+      // Autoplay can still be refused; the poster simply stays put if so.
+      var attempt = video.play();
+      if (attempt && typeof attempt.catch === "function") { attempt.catch(function () {}); }
+    }
+    play();
+
+    // A looping video needs a way to stop it (WCAG 2.2.2)
+    var pauseBtn = $("#heroPause");
+    var userPaused = false;
+    if (pauseBtn) {
+      video.addEventListener("playing", function () { pauseBtn.hidden = false; }, { once: true });
+      pauseBtn.addEventListener("click", function () {
+        userPaused = !userPaused;
+        if (userPaused) video.pause(); else play();
+        pauseBtn.classList.toggle("is-paused", userPaused);
+        pauseBtn.setAttribute("aria-label", userPaused ? t("play") : t("pause"));
+      });
+    }
+
+    // Don't keep decoding while the hero is scrolled out of view
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        if (userPaused) return;
+        if (entries[0].isIntersecting) play(); else video.pause();
+      }).observe(video);
+    }
   })();
 
 
