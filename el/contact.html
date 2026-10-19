@@ -84,8 +84,8 @@
               </li>
               <li class="step">
                 <div>
-                  <p class="step__title">Σου στέλνω τιμή</p>
-                  <p>Μέγεθος καμβά, τιμή και ένα χρονοδιάγραμμα που μπορώ πραγματικά να τηρήσω.</p>
+                  <p class="step__title">Σου απαντώ με email</p>
+                  <p>Με μέγεθος καμβά, τιμή και ένα χρονοδιάγραμμα που μπορώ πραγματικά να τηρήσω. Από εκεί τα συζητάμε όλα με email, με την ησυχία σου, και οι φωτογραφίες σου μπορούν απλώς να έρθουν ως συνημμένα.</p>
                 </div>
               </li>
               <li class="step">
@@ -150,6 +150,19 @@
                           placeholder="Τι να δείχνει; Έχεις κάποια χρώματα ή μέγεθος στο μυαλό σου; Πού θα κρεμαστεί; Τον χρειάζεσαι μέχρι κάποια ημερομηνία;"></textarea>
                 <p class="form__hint">Όσο περισσότερα γράψεις, τόσο πιο κοντά σε αυτό που φαντάζεσαι θα είναι το αποτέλεσμα.</p>
                 <p class="form__error" data-error-for="message"></p>
+              </div>
+
+              <div class="form__row">
+                <label class="form__label" for="photos">Φωτογραφίες αναφοράς <span class="form__optional">(προαιρετικό)</span></label>
+                <input class="form__input" type="text" id="photos" name="photos_link"
+                       inputmode="url" autocomplete="off"
+                       placeholder="Σύνδεσμος από Google Drive, iCloud, Dropbox…"
+                       aria-describedby="photos-hint" />
+                <p class="form__hint" id="photos-hint">
+                  Δεν χρειάζεται να το συμπληρώσεις. Θα σου απαντήσω με email και μπορείς
+                  απλώς να επισυνάψεις τις φωτογραφίες στην απάντησή σου. Αν τις έχεις ήδη
+                  ανεβάσει κάπου, βάλε εδώ τον σύνδεσμο.
+                </p>
               </div>
 
               <div class="form__gotcha" aria-hidden="true">

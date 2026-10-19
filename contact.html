@@ -84,8 +84,8 @@
               </li>
               <li class="step">
                 <div>
-                  <p class="step__title">I send a price</p>
-                  <p>Canvas size, a figure and a timeline I can actually keep to.</p>
+                  <p class="step__title">I reply by email</p>
+                  <p>With a canvas size, a price and a timeline I can actually keep to. From there we talk it all through by email, at your own pace, and your photos can simply come as attachments.</p>
                 </div>
               </li>
               <li class="step">
@@ -150,6 +150,18 @@
                           placeholder="What should it show? Any colours or size in mind? Where will it hang? Do you need it by a certain date?"></textarea>
                 <p class="form__hint">The more you write, the closer the first attempt will land.</p>
                 <p class="form__error" data-error-for="message"></p>
+              </div>
+
+              <div class="form__row">
+                <label class="form__label" for="photos">Reference photos <span class="form__optional">(optional)</span></label>
+                <input class="form__input" type="text" id="photos" name="photos_link"
+                       inputmode="url" autocomplete="off"
+                       placeholder="A link from Google Drive, iCloud, Dropbox…"
+                       aria-describedby="photos-hint" />
+                <p class="form__hint" id="photos-hint">
+                  No need to fill this in. I'll reply to you by email, and you can simply
+                  attach your photos to your reply. If they're already online, paste the link here.
+                </p>
               </div>
 
               <div class="form__gotcha" aria-hidden="true">

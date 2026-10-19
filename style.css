@@ -843,6 +843,7 @@ html.is-locked { overflow: hidden; }
   color: var(--violet-ink);
   margin-bottom: 0.45rem;
 }
+.form__optional { font-weight: 400; color: var(--text-soft); }
 .form__input {
   width: 100%;
   padding: 0.85rem 1.1rem;
