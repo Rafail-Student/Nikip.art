@@ -343,11 +343,13 @@
       current = i;
 
       var img = $("img", piece);
+      var title = $(".piece__title", piece);
+      var medium = $(".piece__medium", piece);
       resetZoom();
       imgEl.src = piece.getAttribute("href");
-      imgEl.alt = img ? img.alt : (piece.dataset.title || t("painting"));
-      titleEl.textContent = piece.dataset.title || "";
-      mediumEl.textContent = piece.dataset.medium || "";
+      imgEl.alt = img ? img.alt : (title ? title.textContent : t("painting"));
+      titleEl.textContent = title ? title.textContent : "";
+      mediumEl.textContent = medium ? medium.textContent : "";
     }
 
     function isOpen() { return box.classList.contains("is-open"); }
