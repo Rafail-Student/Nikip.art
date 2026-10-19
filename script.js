@@ -25,16 +25,15 @@
       menuOpen:   "Open menu",
       menuClose:  "Close menu",
       painting:   "Painting",
-      required:   "This one's needed.",
+      required:   "Please fill this in.",
       badEmail:   "That address doesn't look complete.",
-      tooShort:   "A little more detail would help — 20 characters or so.",
+      tooShort:   "A little more detail would help: at least 20 characters.",
       checkFields:"Have a look at the highlighted fields.",
-      setup:      "Setup needed: replace YOUR_FORM_ID in contact.html with your Formspree form id.",
       sending:    "Sending…",
-      sent:       "Got it — I'll write back by email soon. If you have photos, just attach them to your reply.",
-      failed:     "That didn't go through. Please try again.",
-      offline:    "No connection — check your network and try again.",
-      send:       "Send it",
+      sent:       "Got it! I'll reply by email soon. If you have photos, you can simply attach them to your reply.",
+      failed:     "Sorry, that didn't send. Please try again, or email me at nikipart.paintings@gmail.com.",
+      offline:    "No connection. Please check your network and try again, or email me at nikipart.paintings@gmail.com.",
+      send:       "Send request",
       zoomIn:     "Zoom in",
       zoomOut:    "Zoom out",
       pause:      "Pause video",
@@ -46,13 +45,12 @@
       painting:   "Πίνακας",
       required:   "Αυτό το πεδίο είναι υποχρεωτικό.",
       badEmail:   "Το email δεν φαίνεται σωστό.",
-      tooShort:   "Γράψε λίγο περισσότερα — τουλάχιστον 20 χαρακτήρες.",
+      tooShort:   "Γράψε λίγο περισσότερα, τουλάχιστον 20 χαρακτήρες.",
       checkFields:"Έλεγξε τα πεδία που επισημαίνονται.",
-      setup:      "Χρειάζεται ρύθμιση: αντικατέστησε το YOUR_FORM_ID στο el/contact.html με το Formspree form id σου.",
       sending:    "Αποστολή…",
-      sent:       "Το έλαβα — θα σου απαντήσω σύντομα με email. Αν έχεις φωτογραφίες, μπορείς απλώς να τις επισυνάψεις στην απάντησή σου.",
-      failed:     "Το μήνυμα δεν στάλθηκε. Δοκίμασε ξανά.",
-      offline:    "Δεν υπάρχει σύνδεση — έλεγξε το δίκτυο και δοκίμασε ξανά.",
+      sent:       "Πήρα το μήνυμά σου! Θα σου απαντήσω σύντομα με email. Αν έχεις φωτογραφίες, μπορείς απλώς να τις επισυνάψεις στην απάντησή σου.",
+      failed:     "Κάτι πήγε στραβά και το μήνυμα δεν στάλθηκε. Δοκίμασε ξανά ή γράψε μου στο nikipart.paintings@gmail.com.",
+      offline:    "Δεν υπάρχει σύνδεση. Έλεγξε το δίκτυο και δοκίμασε ξανά ή γράψε μου στο nikipart.paintings@gmail.com.",
       send:       "Αποστολή αιτήματος",
       zoomIn:     "Μεγέθυνση",
       zoomOut:    "Σμίκρυνση",
@@ -208,6 +206,7 @@
     var stage    = $("#lightboxStage");
     var titleEl  = $("#lightboxTitle");
     var mediumEl = $("#lightboxMedium");
+    var countEl  = $("#lightboxCount");
     var closeBtn = $("#lightboxClose");
     var zoomBtn  = $("#lightboxZoom");
     var prevBtn  = $("#lightboxPrev");
@@ -349,6 +348,7 @@
       imgEl.src = piece.getAttribute("href");
       imgEl.alt = img ? img.alt : (title ? title.textContent : t("painting"));
       titleEl.textContent = title ? title.textContent : "";
+      if (countEl) countEl.textContent = (i + 1) + " / " + pieces.length;
       mediumEl.textContent = medium ? medium.textContent : "";
     }
 
@@ -493,13 +493,6 @@
 
       var action = form.getAttribute("action") || "";
 
-      // Fail loudly rather than posting nowhere
-      if (action.indexOf("YOUR_FORM_ID") !== -1) {
-        e.preventDefault();
-        setStatus(t("setup"), "error");
-        return;
-      }
-
       // Without fetch, let the browser post normally
       if (!window.fetch) return;
 
@@ -526,7 +519,8 @@
               var msg = (data && data.errors)
                 ? data.errors.map(function (er) { return er.message; }).filter(Boolean).join(", ")
                 : "";
-              setStatus(msg || t("failed"), "error");
+              // Formspree's own messages are English only
+              setStatus(LANG === "el" ? t("failed") : (msg || t("failed")), "error");
             });
           }
         })

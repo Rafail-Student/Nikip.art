@@ -30,10 +30,37 @@
   <!-- ============================= HEADER ============================= -->
   <header class="site-header" id="siteHeader">
     <div class="site-header__inner">
-      <a class="brand" href="index.html" aria-label="Nikip.Art — αρχική">
-        <img class="brand__mark" src="../assets/Logos/LogoNikipArt_Mark.png" alt="" width="368" height="252" />
-        <span class="brand__text">Nikip.Art</span>
-      </a>
+      <div class="site-header__start">
+        <a class="brand" href="index.html" aria-label="Nikip.Art — αρχική">
+          <img class="brand__mark" src="../assets/Logos/LogoNikipArt_Mark.png" alt="" width="368" height="252" />
+          <span class="brand__text">Nikip.Art</span>
+        </a>
+
+        <ul class="daubs" aria-label="Ακολούθησέ με">
+          <li>
+            <a class="daub" href="https://www.instagram.com/nikip.art/" target="_blank" rel="noopener noreferrer" aria-label="Το Nikip.Art στο Instagram">
+              <svg class="daub__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/>
+              </svg>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+            </a>
+          </li>
+          <li>
+            <a class="daub daub--alt" href="https://www.tiktok.com/@p.nikh?_r=1&amp;_t=ZN-97JEhmYnabu" target="_blank" rel="noopener noreferrer" aria-label="Το Nikip.Art στο TikTok">
+              <svg class="daub__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M16.6 5.82a4.28 4.28 0 0 1-1.04-2.82h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.04.78.12V9.75a5.74 5.74 0 0 0-.78-.05A5.7 5.7 0 1 0 15.56 15.4V9.01a7.3 7.3 0 0 0 4.27 1.37V7.3a4.28 4.28 0 0 1-3.23-1.48z"/>
+              </svg>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
 
       <nav class="nav" id="primaryNav" aria-label="Κύριο μενού">
         <ul class="nav__list">
@@ -66,8 +93,9 @@
           <h1 class="h-section">Ζήτα έναν πίνακα.</h1>
           <p class="lede">
             Πες μου το μέρος, το μέγεθος και την αίσθηση που θέλεις να έχει.
-            Οι φωτογραφίες αναφοράς βοηθούν όσο τίποτα άλλο — ειδικά οι δικές σου.
+            Οι φωτογραφίες αναφοράς βοηθούν όσο τίποτα άλλο, ειδικά οι δικές σου.
           </p>
+          <a class="contact__jump" href="#commissionForm">Πήγαινε στη φόρμα ↓</a>
         </div>
 
         <div class="contact__grid">
@@ -125,19 +153,19 @@
               <div class="form__row">
                 <label class="form__label" for="name">Το όνομά σου</label>
                 <input class="form__input" type="text" id="name" name="name"
-                       required autocomplete="name" placeholder="Μαρία" />
+                       required autocomplete="name" placeholder="π.χ. Μαρία" />
                 <p class="form__error" data-error-for="name"></p>
               </div>
 
               <div class="form__row">
                 <label class="form__label" for="email">Email</label>
                 <input class="form__input" type="email" id="email" name="email"
-                       required autocomplete="email" placeholder="maria@example.com" />
+                       required autocomplete="email" placeholder="π.χ. maria@example.com" />
                 <p class="form__error" data-error-for="email"></p>
               </div>
 
               <div class="form__row">
-                <label class="form__label" for="subject">Θέμα</label>
+                <label class="form__label" for="subject">Τι θα ήθελες να ζωγραφίσω;</label>
                 <input class="form__input" type="text" id="subject" name="subject"
                        required placeholder="Ένα μικρό θαλασσινό τοπίο, περίπου 40 x 50 εκ." />
                 <p class="form__error" data-error-for="subject"></p>
@@ -175,7 +203,7 @@
               </button>
 
               <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
-              <p class="form__hint">Τα στοιχεία σου χρησιμοποιούνται μόνο για να σου απαντήσω. Δες τη <a href="privacy.html">σημείωση απορρήτου</a>.</p>
+              <p class="form__hint">Χρησιμοποιώ τα στοιχεία σου μόνο για να σου απαντήσω. Δες την <a href="privacy.html">πολιτική απορρήτου</a>.</p>
             </form>
           </div>
 
@@ -209,8 +237,7 @@
       </div>
 
       <div class="site-footer__bottom">
-        <p>&copy; <span id="year">2026</span> Nikip.Art — με την επιφύλαξη παντός δικαιώματος για τους πίνακες και τις φωτογραφίες.</p>
-        <p>Φτιαγμένο με υπομονή, σε μικρά μεγέθη.</p>
+        <p>&copy; <span id="year">2026</span> Nikip.Art. Με την επιφύλαξη παντός δικαιώματος για τους πίνακες και τις φωτογραφίες.</p>
       </div>
     </div>
   </footer>

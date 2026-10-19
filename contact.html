@@ -30,10 +30,37 @@
   <!-- ============================= HEADER ============================= -->
   <header class="site-header" id="siteHeader">
     <div class="site-header__inner">
-      <a class="brand" href="index.html" aria-label="Nikip.Art — home">
-        <img class="brand__mark" src="assets/Logos/LogoNikipArt_Mark.png" alt="" width="368" height="252" />
-        <span class="brand__text">Nikip.Art</span>
-      </a>
+      <div class="site-header__start">
+        <a class="brand" href="index.html" aria-label="Nikip.Art — home">
+          <img class="brand__mark" src="assets/Logos/LogoNikipArt_Mark.png" alt="" width="368" height="252" />
+          <span class="brand__text">Nikip.Art</span>
+        </a>
+
+        <ul class="daubs" aria-label="Follow me">
+          <li>
+            <a class="daub" href="https://www.instagram.com/nikip.art/" target="_blank" rel="noopener noreferrer" aria-label="Nikip.Art on Instagram">
+              <svg class="daub__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/>
+              </svg>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+            </a>
+          </li>
+          <li>
+            <a class="daub daub--alt" href="https://www.tiktok.com/@p.nikh?_r=1&amp;_t=ZN-97JEhmYnabu" target="_blank" rel="noopener noreferrer" aria-label="Nikip.Art on TikTok">
+              <svg class="daub__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M16.6 5.82a4.28 4.28 0 0 1-1.04-2.82h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.04.78.12V9.75a5.74 5.74 0 0 0-.78-.05A5.7 5.7 0 1 0 15.56 15.4V9.01a7.3 7.3 0 0 0 4.27 1.37V7.3a4.28 4.28 0 0 1-3.23-1.48z"/>
+              </svg>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+              <span class="daub__drop" aria-hidden="true"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
 
       <nav class="nav" id="primaryNav" aria-label="Main menu">
         <ul class="nav__list">
@@ -66,8 +93,9 @@
           <h1 class="h-section">Request a painting.</h1>
           <p class="lede">
             Tell me the place, the size and roughly how you want it to feel.
-            Reference photos help more than anything — especially your own.
+            Reference photos help more than anything, especially your own.
           </p>
+          <a class="contact__jump" href="#commissionForm">Go to the form ↓</a>
         </div>
 
         <div class="contact__grid">
@@ -125,19 +153,19 @@
               <div class="form__row">
                 <label class="form__label" for="name">Your name</label>
                 <input class="form__input" type="text" id="name" name="name"
-                       required autocomplete="name" placeholder="Maria" />
+                       required autocomplete="name" placeholder="e.g. Maria" />
                 <p class="form__error" data-error-for="name"></p>
               </div>
 
               <div class="form__row">
                 <label class="form__label" for="email">Email</label>
                 <input class="form__input" type="email" id="email" name="email"
-                       required autocomplete="email" placeholder="maria@example.com" />
+                       required autocomplete="email" placeholder="e.g. maria@example.com" />
                 <p class="form__error" data-error-for="email"></p>
               </div>
 
               <div class="form__row">
-                <label class="form__label" for="subject">What's it about</label>
+                <label class="form__label" for="subject">What would you like painted?</label>
                 <input class="form__input" type="text" id="subject" name="subject"
                        required placeholder="A small seascape, around 40 x 50 cm" />
                 <p class="form__error" data-error-for="subject"></p>
@@ -148,7 +176,7 @@
                 <textarea class="form__input form__textarea" id="message" name="message"
                           rows="7" required
                           placeholder="What should it show? Any colours or size in mind? Where will it hang? Do you need it by a certain date?"></textarea>
-                <p class="form__hint">The more you write, the closer the first attempt will land.</p>
+                <p class="form__hint">The more you tell me, the easier it is to get it right.</p>
                 <p class="form__error" data-error-for="message"></p>
               </div>
 
@@ -170,11 +198,11 @@
               </div>
 
               <button class="btn btn--block" type="submit" id="formSubmit">
-                <span class="btn__label">Send it</span>
+                <span class="btn__label">Send request</span>
               </button>
 
               <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
-              <p class="form__hint">Your details are used only to reply to you. See the <a href="privacy.html">privacy notice</a>.</p>
+              <p class="form__hint">I use your details only to reply to you. See the <a href="privacy.html">privacy policy</a>.</p>
             </form>
           </div>
 
@@ -208,8 +236,7 @@
       </div>
 
       <div class="site-footer__bottom">
-        <p>&copy; <span id="year">2026</span> Nikip.Art — all rights reserved for the paintings and photographs.</p>
-        <p>Made slowly, in small sizes.</p>
+        <p>&copy; <span id="year">2026</span> Nikip.Art. All rights reserved for the paintings and photographs.</p>
       </div>
     </div>
   </footer>
