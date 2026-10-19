@@ -83,15 +83,22 @@
     var src = small || video.getAttribute("data-src");
     if (!src) return;
 
-    video.setAttribute("src", src);
-    video.load();
+    // On phones the video sits below the text, so only fetch it when it is
+    // about to scroll into view.
+    var started = false;
+    function start() {
+      if (started) return;
+      started = true;
+      video.setAttribute("src", src);
+      video.load();
+      play();
+    }
 
     function play() {
       // Autoplay can still be refused; the poster simply stays put if so.
       var attempt = video.play();
       if (attempt && typeof attempt.catch === "function") { attempt.catch(function () {}); }
     }
-    play();
 
     // A looping video needs a way to stop it (WCAG 2.2.2)
     var pauseBtn = $("#heroPause");
@@ -106,12 +113,16 @@
       });
     }
 
-    // Don't keep decoding while the hero is scrolled out of view
+    // Start once the video is near the screen, and don't keep decoding while
+    // it is scrolled out of view
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (entries) {
         if (userPaused) return;
-        if (entries[0].isIntersecting) play(); else video.pause();
-      }).observe(video);
+        if (!entries[0].isIntersecting) { if (started) video.pause(); return; }
+        if (started) play(); else start();
+      }, { rootMargin: "200px 0px" }).observe(video);
+    } else {
+      start();
     }
   })();
 

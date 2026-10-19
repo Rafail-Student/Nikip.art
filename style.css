@@ -70,7 +70,7 @@
 }
 
 /* Literata's Greek reads lighter than Fraunces at the same weight */
-html[lang="el"] .h-hero { font-weight: 600; }
+html[lang="el"] .h-hero { font-weight: 600; font-size: clamp(2.2rem, 4.4vw, 3.8rem); }
 html[lang="el"] .h-section { font-weight: 650; }
 
 
@@ -989,21 +989,18 @@ html.is-locked { overflow: hidden; }
   .invite__inner { grid-template-columns: 1fr auto; gap: 3rem; }
 }
 
-/* ---------- Mobile hero: the painting comes first ----------
-   Most visitors arrive from Instagram on a phone, so they see paint before
-   text. 4:5 crop of the 9:16 clip, capped at 55% of the screen height. */
+/* ---------- Mobile hero: text first, then the video at full width ----------
+   The headline and buttons fill the first screen; the 4:5 crop of the 9:16
+   clip follows below, large enough to read as a painting. */
 @media (max-width: 899px) {
-  .hero { padding-top: 1.25rem; }
-  .hero__grid { gap: 1.5rem; }
-  .hero__media { order: -1; max-width: min(100%, 31svh); }
-  .hero__caption { margin-top: 0.6rem; }
+  .hero { padding-top: 1.5rem; }
+  .hero__grid { gap: 2.5rem; }
+  .hero__media { max-width: 100%; }
+  .hero__media::before { inset: -3% -4% -2% -4%; }
+  .hero__frame { aspect-ratio: 4 / 5; }
+  .hero__caption { margin-top: 0.75rem; text-align: left; }
   .hero__title { margin-bottom: 1rem; }
   .hero__lede { margin-bottom: 1.5rem; }
-  .hero__frame { aspect-ratio: 4 / 5; }
-}
-/* Short phones (iPhone SE and similar): a smaller video keeps the button in view */
-@media (max-width: 899px) and (max-height: 760px) {
-  .hero__media { max-width: min(100%, 25svh); }
 }
 
 /* ---------- Mobile navigation ----------
