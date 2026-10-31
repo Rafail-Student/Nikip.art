@@ -2,7 +2,7 @@
 
 Portfolio and commissions site for Nikip.Art, an artist who paints places in acrylic and watercolour.
 
-**Live:** https://rafail-student.github.io/Nikip.art/
+**Live:** https://nikip.art
 
 ## What it does
 
