@@ -115,15 +115,22 @@
 
     // Start once the video is near the screen, and don't keep decoding while
     // it is scrolled out of view
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (entries) {
-        if (userPaused) return;
-        if (!entries[0].isIntersecting) { if (started) video.pause(); return; }
-        if (started) play(); else start();
-      }, { rootMargin: "200px 0px" }).observe(video);
-    } else {
-      start();
+    function watch() {
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) {
+          if (userPaused) return;
+          if (!entries[0].isIntersecting) { if (started) video.pause(); return; }
+          if (started) play(); else start();
+        }, { rootMargin: "200px 0px" }).observe(video);
+      } else {
+        start();
+      }
     }
+
+    // Wait for the page itself to finish loading, so the video's megabytes
+    // don't compete with the text, fonts and first images
+    if (document.readyState === "complete") watch();
+    else window.addEventListener("load", watch, { once: true });
   })();
 
 

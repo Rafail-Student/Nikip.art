@@ -338,8 +338,9 @@ h1, h2, h3, .display {
 }
 
 .brand { display: inline-flex; align-items: center; gap: 0.55rem; flex-shrink: 0; }
-/* LogoNikipArt_Mark.png is the logo cropped to the paint blob itself (the
-   original file was half transparent padding), so this height is the blob. */
+/* LogoNikipArt_Mark.webp is the logo cropped to the paint blob itself (the
+   original file was half transparent padding), so this height is the blob.
+   The full-size .png stays for the structured data in index.html. */
 .brand__mark {
   width: auto;
   height: clamp(2.5rem, 4vw, 3.25rem);
